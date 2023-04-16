@@ -93,6 +93,9 @@ def Cx(M):
 
 
 def ALFA(M, M1, M2, alfaM):
+    """
+    Функция для мешка
+    """
     if M < M1 or M2 < M:
         ALFA = 0
     else:
@@ -101,13 +104,20 @@ def ALFA(M, M1, M2, alfaM):
 
 
 def TET(tet0, dtet, t):
+    """
+    Управление, связанное с обкаткой по тангажу
+    """
     TET = tet0 + dtet*t
     return TET
 
 
 def Equations_Thirst(x, y, par):
-    # par[] = S, P,c, stage, fi, A,  M1, M2, alfaM, tet0, dtet
-    #         0  1 2  3      4   5   6   7   8      6     7
+    """
+    Уравнения, включающие тягу. В par все необходимые параметры для управления (ступени, ракета)
+    
+    par[] = S, P,c, stage, fi, A,  M1, M2, alfaM, tet0, dtet
+            0  1 2  3      4   5   6   7   8      6     7
+    """
     g0 = 9.80665/1000        # kм/с2
 
     R = np.zeros(3)
@@ -162,6 +172,9 @@ def Equations_Thirst(x, y, par):
 
 
 def Trajectory(u, rocket: Rocket):
+    """
+    Получает описание ракеты и управления
+
     # u = [[tact1, M1, M2, alfaM], [tact2, tet0, dtet ], ...]  len(u) = Nstage
     # T = [ , , , ]          len(T) = Nstage
     # I = [ , , , ]          len(I) = Nstage
@@ -169,6 +182,7 @@ def Trajectory(u, rocket: Rocket):
     #   сбрасываяемая масса после работы N ступени ]
     # S = [ , , , ]          len(S) = Nstage
     # если tet0 не оптимизируется
+    """
 
     tt = []
     TR = [[], [], [], [], [], [], []]
@@ -199,6 +213,10 @@ def Trajectory(u, rocket: Rocket):
 
 
 def boundary_condition(rvm, H):
+    """
+    rvm - результат интегрирования
+    H - желаемая высота
+    """
 
     r = np.sqrt(rvm[0]**2 + (rvm[1] + Constants.R_Earth)**2 + rvm[2]**2)
     h = r - Constants.R_Earth
@@ -211,9 +229,9 @@ def boundary_condition(rvm, H):
 
     error = np.zeros(4)
     error[0] = h - H
-    error[1] = ancl - np.pi/2
-    error[2] = v - V_circ
-    error[3] = -rvm[6]
+    error[1] = ancl - np.pi/2   # 
+    error[2] = v - V_circ       # контроль скорости на круговой орбите
+    error[3] = -rvm[6]          # масса
 
     if isnan(error[1]):
         error[1] = 100
