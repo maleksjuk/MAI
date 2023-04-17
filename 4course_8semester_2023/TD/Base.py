@@ -18,17 +18,32 @@ class Constants:
     UnitV = np.sqrt(UnitfM / UnitR)  # km/sec
     UnitT = (UnitR / UnitV) / 86400    # day
 
+    g0 = 9.80665
+
+
+class Control:
+    u = [[143.3, 0.2, 0.65, -10.75 / Constants.raddeg],
+         [430, 90 / Constants.raddeg, -0.119 / Constants.raddeg]]
+
+
+class Stage:
+    def __init__(self) -> None:
+        pass
+
+    def set_control(self, control: Control) -> None:
+        pass
+
 
 class Rocket:
     Nstage = 2
-    g0 = 9.80665
-    P = [4541338, 981*1000]              # N --
-    c = [282*g0, 348*g0]                # m/sec --
-    M = [780*1000, 25*1000, 18*1000]     # kg +-+
-    S = [7, 3.5 * np.pi**2]               # m2
-    lam = -52.8 / Constants.raddeg                     # rad +
-    fi = 5.2 / Constants.raddeg                   # rad +
-    A = 80 / Constants.raddeg                     # rad -
+    g0 = Constants.g0
+    P = [1115 * 10**3, 27.4 * 10**3]    # N ++      тяга по ступеням
+    c = [431 * g0, 324 * g0]            # m/sec ++  скорость истечения по ступеням
+    M = [780 * 10**3, (780 - 240*2 - 184.7) * 10**3, 18 * 10**3]    # kg +++
+    S = [((5.4/2)**2 + 2 * (3.05/2)**2 ) * np.pi, (5.4/2)**2 * np.pi] # m2 ++     площадь миделева сечения
+    lam = -52.8 / Constants.raddeg      # rad +     долгота
+    fi = 5.2 / Constants.raddeg         # rad +     широта
+    A = 80 / Constants.raddeg           # rad -     азимут старта (вычислить в зависимости от наклонения)
 
 
 class Orbit:
@@ -44,9 +59,3 @@ class Orbit:
     # Наклонение орбиты [градусы]
     # Аргумент перигея [градусы]
     # Период [час]
-
-
-
-class Control:
-    u = [[143.3, 0.2, 0.65, -10.75 / Constants.raddeg],
-         [430, 90 / Constants.raddeg, -0.119 / Constants.raddeg]]
