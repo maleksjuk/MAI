@@ -22,8 +22,9 @@ class Constants:
 
 
 class Control:
-    u = [[143.3, 0.2, 0.65, -10.75 / Constants.raddeg],
-         [430, 90 / Constants.raddeg, -0.119 / Constants.raddeg]]
+    u = [[130, 0.2, 0.65, -10.75 / Constants.raddeg],
+         [540 - 130, 90 / Constants.raddeg, -0.119 / Constants.raddeg],
+         [945, 90 / Constants.raddeg, -0.119 / Constants.raddeg]]
 
 
 class Stage:
@@ -35,12 +36,27 @@ class Stage:
 
 
 class Rocket:
-    Nstage = 2
-    g0 = Constants.g0
-    P = [1115 * 10**3, 27.4 * 10**3]    # N ++      тяга по ступеням
-    c = [431 * g0, 324 * g0]            # m/sec ++  скорость истечения по ступеням
-    M = [780 * 10**3, (780 - 240*2 - 184.7) * 10**3, 18 * 10**3]    # kg +++
-    S = [((5.4/2)**2 + 2 * (3.05/2)**2 ) * np.pi, (5.4/2)**2 * np.pi] # m2 ++     площадь миделева сечения
+    Nstage = 3
+    P = [(1371 + 7000 * 2) * 10**3,
+         1371 * 10**3,
+         27.4 * 10**3, ]    # N +++      тяга по ступеням
+
+    I = [(432 + 274.5*2) / 3,   # EPC + 2 EAP
+         432,                   # EPC
+         324]                   # ESC-A
+    c = [i * Constants.g0 for i in I]            # m/sec +++  скорость истечения по ступеням
+    # c = [1 * Constants.g0, 431 * Constants.g0, 324 * Constants.g0]            # m/sec ---  скорость истечения по ступеням
+
+    M = [780 * 10**3,               # start mass
+         (33 * 2 + 2.675) * 10**3,  # dry EAP (boosters) + fairing
+         14.7 * 10**3,              # dry EPC
+         4.540 * 10**3]             # dry ESC-A
+        # kg ++++
+    
+    S = [((5.4/2)**2 + 2 * (3.05/2)**2 ) * np.pi,
+         (5.4/2)**2 * np.pi,
+         (5.4/2)**2 * np.pi] # m2 +++     площадь миделева сечения
+    
     lam = -52.8 / Constants.raddeg      # rad +     долгота
     fi = 5.2 / Constants.raddeg         # rad +     широта
     A = 80 / Constants.raddeg           # rad -     азимут старта (вычислить в зависимости от наклонения)
