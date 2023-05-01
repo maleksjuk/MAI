@@ -1,17 +1,7 @@
 import numpy as np
-from scipy.optimize import root, minimize, Bounds
-from scipy.interpolate import interp1d
-
-from Equations import ODE,Trajectory,boundary_condition,Solution, Solution2, Trajectory_orbit, Solution_ELL, funMin_ell
-from Orbit import orbit, orbit_full, Topographic_coordinates, Topographic_coordinates_3D
-
-import matplotlib.pyplot as plt
-from sympy.plotting import plot3d_parametric_line
-from mpl_toolkits.mplot3d import Axes3D
-
+from Equations import Solution2, Trajectory_orbit, Solution_ELL
 
 # константы
-
 raddeg = 180/np.pi
 
 fM_Earth = 398600.4415 # km^3/sec^2
@@ -41,14 +31,12 @@ fi  = 51.6/raddeg                   # rad   широта
 A   = 80/raddeg                     # rad   азимут старта (вычислить в зависимости от наклонения)
 
 # параметры орбиты
-
 H = 200     # высота
 inc = 51.6  # наклонение
 W = 0 
 OM = 90
 
 # управление
-
 u = [[143.3, 0.2, 0.65, -10.75/raddeg], [430, 90/raddeg, -0.119/raddeg ]]
 # 1 1 для времени начальное приближение (честно, не выбираемый параметр. т.к. есть макс заправка): масса топлива умножить на массовый расход
 # 1 2.. остальное: по наитию (подобрать не совсем ужасное) - и будет всё хорошо
@@ -58,8 +46,8 @@ u = [[143.3, 0.2, 0.65, -10.75/raddeg], [430, 90/raddeg, -0.119/raddeg ]]
 
 indata = 0 
 while indata == 1:
-    print(u)
-    Trajectory_orbit (u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM) 
+    print('Управление:', u)
+    Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM) 
     indata = input("Хотите изменить начальное приближение? (1 - да, 0 - нет) ")
     if indata == 1:
         for i in range(Nstage):
@@ -75,18 +63,11 @@ while indata == 1:
                 
 #для круговых орбит
 Sol, u, rvm,tt,TR,step, error = Solution2(u, Nstage, P, c, M, S, lam, fi, A, 200)
-
-Trajectory_orbit (u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM) 
-
-
+Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM) 
 
 #для эллиптических орбит
-
 hp = 200    # перицентр
 ha = 500    # апоцентр
-
 u2 = [[155.3, 0.6, 0.85, -2.75/raddeg], [427.6, 90/raddeg, -0.1759/raddeg ]]
-
-Trajectory_orbit (u2, Nstage, P, c, M, S, lam, fi, A, hp, inc, W, OM) 
-
-Sol2, u2, rvm2,tt2,TR2,step2, error2 = Solution_ELL (u2, Nstage, P, c, M, S, lam, fi, A, hp, ha)
+Trajectory_orbit(u2, Nstage, P, c, M, S, lam, fi, A, hp, inc, W, OM) 
+Sol2, u2, rvm2, tt2, TR2, step2, error2 = Solution_ELL(u2, Nstage, P, c, M, S, lam, fi, A, hp, ha)
