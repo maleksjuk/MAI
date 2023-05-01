@@ -1,6 +1,6 @@
 import numpy as np
 
-class Constants:
+class CONST:
     raddeg = 180 / np.pi
 
     fM_Earth = 398600.4415      # km^3/sec^2
@@ -23,12 +23,12 @@ class Constants:
 
 class Control:
     # VARIANT 1
-    # u = [[130, 0.2, 0.65, -10.75 / Constants.raddeg],
-        #  [540 - 130, 90 / Constants.raddeg, -0.119 / Constants.raddeg],
-        #  [945, 90 / Constants.raddeg, -0.119 / Constants.raddeg]]
+    # u = [[130, 0.2, 0.65, -10.75 / CONST.raddeg],
+        #  [540 - 130, 90 / CONST.raddeg, -0.119 / CONST.raddeg],
+        #  [945, 90 / CONST.raddeg, -0.119 / CONST.raddeg]]
     
     # ORIGIN
-    u = [[143.3, 0.2, 0.65, -10.75/Constants.raddeg], [430, 90/Constants.raddeg, -0.119/Constants.raddeg ]]
+    u = [[143.3, 0.2, 0.65, -10.75/CONST.raddeg], [430, 90/CONST.raddeg, -0.119/CONST.raddeg ]]
 
 
 class Stage:
@@ -49,8 +49,8 @@ class Rocket:
     # I = [(432 + 274.5*2) / 3,   # EPC + 2 EAP
     #      432,                   # EPC
     #      324]                   # ESC-A
-    # c = [i * Constants.g0 for i in I]            # m/sec +++  скорость истечения по ступеням
-    # # c = [1 * Constants.g0, 431 * Constants.g0, 324 * Constants.g0]            # m/sec ---  скорость истечения по ступеням
+    # c = [i * CONST.g0 for i in I]            # m/sec +++  скорость истечения по ступеням
+    # # c = [1 * CONST.g0, 431 * CONST.g0, 324 * CONST.g0]            # m/sec ---  скорость истечения по ступеням
 
     # M = [780 * 10**3,               # start mass
     #      (33 * 2 + 2.675) * 10**3,  # dry EAP (boosters) + fairing
@@ -62,20 +62,19 @@ class Rocket:
     #      (5.4/2)**2 * np.pi,
     #      (5.4/2)**2 * np.pi] # m2 +++     площадь миделева сечения
     
-    # lam = -52.8 / Constants.raddeg      # rad +     долгота
-    # fi = 5.2 / Constants.raddeg         # rad +     широта
-    # A = 80 / Constants.raddeg           # rad -     азимут старта (вычислить в зависимости от наклонения)
+    # lam = -52.8 / CONST.raddeg      # rad +     долгота
+    # fi = 5.2 / CONST.raddeg         # rad +     широта
+    # A = 80 / CONST.raddeg           # rad -     азимут старта (вычислить в зависимости от наклонения)
 
     # ORIGIN
     Nstage = 2 
-    g0=9.80665 # !! константа
     P = [4541338,981*1000]              # N     тяга по ступеням
-    c = [282*g0, 348*g0]                # m/sec скорость истечения по ступеням
+    c = [282 * CONST.g0, 348 * CONST.g0]                # m/sec скорость истечения по ступеням
     M = [415*1000, 25*1000, 3*1000]     # kg 
     S = [7, 3.5**2 * np.pi]               # m2    площадь миделева сечения
-    lam = 80/Constants.raddeg                     # rad   долгота
-    fi  = 51.6/Constants.raddeg                   # rad   широта
-    A   = 80/Constants.raddeg                     # rad   азимут старта (вычислить в зависимости от наклонения)
+    lam = 80/CONST.raddeg                     # rad   долгота
+    fi  = 51.6/CONST.raddeg                   # rad   широта
+    A   = 80/CONST.raddeg                     # rad   азимут старта (вычислить в зависимости от наклонения)
 
 
 
