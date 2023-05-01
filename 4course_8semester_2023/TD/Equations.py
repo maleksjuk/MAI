@@ -482,7 +482,7 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     orb = orbit_full(Kep, TET, 1) 
 
     # графики
-    path_prefix = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+    path_prefix = './plots/' + datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
     plt.ion()
 
     fig = plt.figure(figsize=(8,6))
@@ -506,8 +506,7 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     ax.set_ylabel('Y, km')
     ax.set_zlabel('Z, km')#, rotation=90)
     ax.azim = 225 
-    # plt.draw()
-    fig.draw()
+    plt.draw()
     fig.savefig(path_prefix+'_1.png', format='png')
 
     fig = plt.figure(figsize=(8,6))  
