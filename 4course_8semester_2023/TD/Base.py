@@ -78,7 +78,7 @@ class Rocket:
 
 
 
-class Orbit:
+class OrbitData:
     # VARIANT 1
     # H = 200     # -
     # inc = 5.2   # + or 6
@@ -90,6 +90,9 @@ class Orbit:
     inc = 51.6  # наклонение
     W = 0 
     OM = 90
+
+    ha = 0
+    hp = 0
 
     # Орбита
     # Большая полуось [км]

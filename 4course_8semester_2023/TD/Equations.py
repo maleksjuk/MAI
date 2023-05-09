@@ -11,6 +11,8 @@ from Orbit import orbit_full, Keplerian_elements
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from Base import *
+
 
 ts1 = []
 ys1 = []
@@ -389,113 +391,24 @@ def Solution2(u, Nstage, P, c, M, S, lam, fi, A, H):
     return x, u, rvm, tt, TR, step, error
 
 
-def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
-
-    # константы
-    raddeg = 180/np.pi
-    
-    fM_Earth = 398600.4415 # km^3/sec^2
-    fM_Moon = 4902.801 # km^3/sec^2
-    fM_Sun = 1.32712440018e11 # km^3/sec^2
-    
-    R_Earth = 6371										# km 
-    J2_Earth = 1.0826157e-3
-    c_Earth = J2_Earth*fM_Earth*R_Earth*R_Earth/2.0	# km^5/sec^2
-    om_Earth = 4.17807462*10**(-3) *86400/raddeg # deg/sec *86400/raddeg = rad/day
-    
-    UnitfM = fM_Earth
-    UnitR = R_Earth                # km
-    UnitV = np.sqrt(UnitfM/UnitR)  # km/sec
-    UnitT = (UnitR/UnitV)/86400    # day   
- 
-    # параметры орбиты
-    hp = H
-    ha = H
-    i = inc/raddeg
-    w = W/raddeg
-    om = OM/raddeg
-    tet = 0/raddeg
-    
-    rvm,tt,TR,step = Trajectory(u, Nstage, P, c, M, S, lam, fi, A)
-    error = boundary_condition(rvm, H)
-    n = len(TR[1,:])
-    
-    R0 = np.zeros(3)
-    R0[0] = np.cos(fi) * np.cos(lam) * R_Earth
-    R0[1] = np.cos(fi) * np.sin(lam) * R_Earth
-    R0[2] = np.sin(fi) * R_Earth
-    
-    MA = [[ np.cos(-A), 0 , np.sin(-A)],
-          [ 0, 1, 0],
-          [-np.sin(-A), 0 , np.cos(-A)]]
-    
-    M = [[-np.sin(fi) * np.cos(lam),-np.sin(fi) * np.sin(lam), np.cos(fi)],
-         [ np.cos(fi) * np.cos(lam), np.cos(fi) * np.sin(lam), np.sin(fi)],
-         [-np.sin(lam), np.cos(lam), 0]]
-    
-    MA = np.array(MA)
-    M = np.array(M)
-    M = np.linalg.inv(M)
-
-    TRG = np.zeros((6,n))
-    for i in range(n):
-        TRG[0:3,i] = R0[0:3] + np.dot(M, np.dot(MA, TR[0:3,i]))
-        TRG[3:6,i] = np.dot(M, np.dot(MA, TR[3:6,i]))
-     
-    TR[1,:] = TR[1,:] + R_Earth   
-    
-    # определение высоты
-    h = np.zeros(n)
-    for i in range(n):
-        h[i] = np.sqrt(TR[0,i]**2 + TR[1,i]**2 + TR[2,i]**2) - R_Earth
-    
-    # определение дальности
-    R0 = [0, R_Earth, 0]
-    L = np.zeros(n)
-    for i in range(n):
-        Rk = TR[0:3,i]
-        danc = np.arccos((R0[0]*Rk[0] + R0[1]*Rk[1] + R0[2]*Rk[2])
-                         / (np.sqrt(R0[0]**2 + R0[1]**2 + R0[2]**2)
-                            * np.sqrt(Rk[0]**2 + Rk[1]**2 + Rk[2]**2)))
-        L[i] = danc * R_Earth    
-    
-    print('\nTrajectory_orbit():')
-    print('Параметры траектории')
-    for i in range(Nstage):
-        print('В момент отделения ', i+1, 'ступени:')
-        print('    Положение:', TRG[0:3, step[i+1]-1], 'км')
-        print('    Скорость:',  TRG[3:6, step[i+1]-1], 'км/с')
-        print('    Масса:',     TR[6, step[i+1]-1],    'кг')
-    
-    Kep = Keplerian_elements(TRG[0:6,-1], 0, fM_Earth, 1)
-    print()
-    print('Параметры достигнутой орбиты:')
-    print('Высоты перицентра и апоцентра:', [Kep[3]-R_Earth, Kep[4]-R_Earth], 'км')
-    print('Наклонение, долгота восх. узла, аргумент перицентра', [Kep[5]*raddeg, Kep[6]*raddeg, Kep[6]*raddeg], 'град.')
-    print()
-
-    # Kep = [hp/UnitR, ha/UnitR, i, w, om, tet]
-    Kep = [(Kep[3]-R_Earth)/UnitR, (Kep[4]-R_Earth)/UnitR, Kep[5], Kep[7], Kep[6], tet]
-
-    # по истинной анамалии
-    TET = np.linspace(0, 2*np.pi, 60)
-    orb = orbit_full(Kep, TET, 1) 
-
+def draw_trajectory_orbit(TRG: np.ndarray, orb: np.ndarray, L: np.ndarray,
+                          h: np.ndarray, H, TR, tt):
     # графики
     path_prefix = './plots/' + datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
     plt.ion()
 
+    # plot 1
     fig = plt.figure(figsize=(8,6))
     ax = fig.add_subplot(projection='3d') # ax = plt.gca(projection="3d")
 
     u, v = np.mgrid[0:2*np.pi:36j, 0:np.pi:18j]
-    x = UnitR * np.cos(u) * np.sin(v)
-    y = UnitR * np.sin(u) * np.sin(v)
-    z = UnitR * np.cos(v)
+    x = CONST.UnitR * np.cos(u) * np.sin(v)
+    y = CONST.UnitR * np.sin(u) * np.sin(v)
+    z = CONST.UnitR * np.cos(v)
     ax.plot_wireframe(x, y, z, color="gray")
 
-    ax.plot(TRG[0,:], TRG[1,:], TRG[2,:], color='r', linewidth=4)  
-    ax.plot(orb[:,0]*UnitR, orb[:,1]*UnitR, orb[:,2]*UnitR, '--', color='k')  
+    ax.plot(TRG[0], TRG[1], TRG[2], color='r', linewidth=4)  
+    ax.plot(orb[:,0]*CONST.UnitR, orb[:,1]*CONST.UnitR, orb[:,2]*CONST.UnitR, '--', color='k')  
 
     ax.legend()
     R = 12_000
@@ -509,9 +422,10 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     plt.draw()
     fig.savefig(path_prefix+'_1.png', format='png')
 
+    # plot 2
     fig = plt.figure(figsize=(8,6))  
-    plt.plot(L[:],h[:], color='r', linewidth = 4)
-    plt.plot(L[:],[H]*len(TR[0,:]), '--', color='k')  
+    plt.plot(L, h, color='r', linewidth = 4)
+    plt.plot(L, [H] * len(TR[0]), '--', color='k')  
 
     plt.ylim(0, H+50)
     plt.xlabel('Дальность полёта (км)')
@@ -519,6 +433,7 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     plt.draw()
     fig.savefig(path_prefix+'_2.png', format='png')
 
+    # plot 3
     fig = plt.figure(figsize=(8,6))  
     plt.plot(tt[:],TR[6,:], color='r', linewidth = 4)
     plt.xlabel('Время полёта (сек)')
@@ -528,6 +443,89 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
 
     plt.ioff()
     plt.show()
+
+
+def print_trajectory_orbit(Nstage, TRG, TR, step, Kep):
+    """
+    Распечатать результаты расчётов функции Trajectory_orbit(...)
+    """
+    print('\nTrajectory_orbit():')
+    print('Параметры траектории')
+    for i in range(Nstage):
+        print('В момент отделения ', i+1, 'ступени:')
+        print('    Положение:', TRG[0:3, step[i+1]-1], 'км')
+        print('    Скорость:',  TRG[3:6, step[i+1]-1], 'км/с')
+        print('    Масса:',     TR[6, step[i+1]-1],    'кг')
+    
+    print()
+    print('Параметры достигнутой орбиты:')
+    print('Высоты перицентра и апоцентра:', [Kep[3]-CONST.R_Earth, Kep[4]-CONST.R_Earth], 'км')
+    print('Наклонение, долгота восх. узла, аргумент перицентра', [Kep[5]*CONST.raddeg, Kep[6]*CONST.raddeg, Kep[6]*CONST.raddeg], 'град.')
+    print()
+
+
+def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
+
+    # параметры орбиты
+    # hp = H
+    # ha = H
+    # i = inc/CONST.raddeg
+    # w = W/CONST.raddeg
+    # om = OM/CONST.raddeg
+    tet = 0
+    
+    rvm, tt, TR, step = Trajectory(u, Nstage, P, c, M, S, lam, fi, A)
+    boundary_condition(rvm, H)
+    n = len(TR[1,:])
+    
+    R0 = np.zeros(3)
+    R0[0] = np.cos(fi) * np.cos(lam) * CONST.R_Earth
+    R0[1] = np.cos(fi) * np.sin(lam) * CONST.R_Earth
+    R0[2] = np.sin(fi) * CONST.R_Earth
+    
+    MA = np.array([[ np.cos(-A), 0 , np.sin(-A)],
+                   [ 0, 1, 0],
+                   [-np.sin(-A), 0 , np.cos(-A)]])
+    
+    M = np.array([
+        [-np.sin(fi) * np.cos(lam),-np.sin(fi) * np.sin(lam), np.cos(fi)],
+        [ np.cos(fi) * np.cos(lam), np.cos(fi) * np.sin(lam), np.sin(fi)],
+        [-np.sin(lam), np.cos(lam), 0]
+        ])
+    M = np.linalg.inv(M)
+
+    TRG = np.zeros((6, n))
+    for i in range(n):
+        TRG[0:3, i] = R0 + np.dot(M, np.dot(MA, TR[0:3, i]))
+        TRG[3:6, i] = np.dot(M, np.dot(MA, TR[3:6, i]))
+     
+    TR[1] += CONST.R_Earth
+    
+    # определение высоты
+    h = np.zeros(n)
+    for i in range(n):
+        h[i] = np.sqrt(np.sum(TR[:3,i]**2)) - CONST.R_Earth
+    
+    # определение дальности
+    R0 = np.array([0, CONST.R_Earth, 0])
+    L = np.zeros(n)
+    for i in range(n):
+        Rk = TR[:3,i]
+        danc = np.arccos(np.sum(R0*Rk) / (np.sqrt(np.sum(R0**2)) * np.sqrt(np.sum(Rk**2))))
+        L[i] = danc * CONST.R_Earth
+    
+    Kep = Keplerian_elements(TRG[0:6,-1], 0, CONST.fM_Earth, 1)
+
+    print_trajectory_orbit(Nstage, TRG, TR, step, Kep)
+
+    # Kep = [hp/CONST.UnitR, ha/CONST.UnitR, i, w, om, tet]
+    Kep = [(Kep[3]-CONST.R_Earth)/CONST.UnitR, (Kep[4]-CONST.R_Earth)/CONST.UnitR, Kep[5], Kep[7], Kep[6], tet]
+
+    # по истинной анамалии
+    TET = np.linspace(0, 2*np.pi, 60)
+    orb = orbit_full(Kep, TET, 1) 
+
+    draw_trajectory_orbit(TRG, orb, L, h, H, TR, tt)
 
 
 def boundary_condition_ell(rvm, hp, ha, fi, lam, A):
