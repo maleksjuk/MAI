@@ -464,6 +464,22 @@ def print_trajectory_orbit(Nstage, TRG, TR, step, Kep):
     print()
 
 
+    file_trajectory = './results/' + datetime.now().strftime('%Y-%m-%d_%H:%M:%S') + '_traj.txt'
+    file = open(file_trajectory, 'w')
+    file.write('Параметры траектории\n')
+    for i in range(Nstage):
+        file.write(f'В момент отделения {i+1} ступени:\n')
+        file.write(f'    Положение: {TRG[0:3, step[i+1]-1]} км\n')
+        file.write(f'    Скорость:  {TRG[3:6, step[i+1]-1]} км/с\n')
+        file.write(f'    Масса:     {TR[6, step[i+1]-1]} кг\n')
+    
+    file.write('\n')
+    file.write(f'Параметры достигнутой орбиты:\n')
+    file.write(f'Высоты перицентра и апоцентра: {[Kep[3]-CONST.R_Earth, Kep[4]-CONST.R_Earth]} км\n')
+    file.write(f'Наклонение, долгота восх. узла, аргумент перицентра: {[Kep[5]*CONST.raddeg, Kep[6]*CONST.raddeg, Kep[6]*CONST.raddeg]} град.\n')
+    file.close()
+
+
 def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
 
     # параметры орбиты
