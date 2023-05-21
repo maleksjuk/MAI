@@ -399,4 +399,5 @@ trash
 *.zip
 td_code/
 plots/
+results/
 uirs4/

@@ -1,5 +1,4 @@
 import numpy as np
-from datetime import datetime
 
 from scipy.integrate import ode
 from scipy.optimize import minimize
@@ -12,6 +11,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from Base import *
+from os import path, mkdir
 
 
 ts1 = []
@@ -392,9 +392,8 @@ def Solution2(u, Nstage, P, c, M, S, lam, fi, A, H):
 
 
 def draw_trajectory_orbit(TRG: np.ndarray, orb: np.ndarray, L: np.ndarray,
-                          h: np.ndarray, H, TR, tt):
+                          h: np.ndarray, H, TR, tt, path_prefix):
     # графики
-    path_prefix = './plots/' + datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
     plt.ion()
 
     # plot 1
@@ -445,7 +444,7 @@ def draw_trajectory_orbit(TRG: np.ndarray, orb: np.ndarray, L: np.ndarray,
     plt.show()
 
 
-def print_trajectory_orbit(Nstage, TRG, TR, step, Kep):
+def print_trajectory_orbit(Nstage, TRG, TR, step, Kep, path_prefix):
     """
     Распечатать результаты расчётов функции Trajectory_orbit(...)
     """
@@ -463,8 +462,8 @@ def print_trajectory_orbit(Nstage, TRG, TR, step, Kep):
     print('Наклонение, долгота восх. узла, аргумент перицентра', [Kep[5]*CONST.raddeg, Kep[6]*CONST.raddeg, Kep[6]*CONST.raddeg], 'град.')
     print()
 
+    file_trajectory = path_prefix + '_traj.txt'
 
-    file_trajectory = './results/' + datetime.now().strftime('%Y-%m-%d_%H:%M:%S') + '_traj.txt'
     file = open(file_trajectory, 'w')
     file.write('Параметры траектории\n')
     for i in range(Nstage):
@@ -480,7 +479,7 @@ def print_trajectory_orbit(Nstage, TRG, TR, step, Kep):
     file.close()
 
 
-def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
+def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM, path_prefix_txt, path_prefix_plt):
 
     # параметры орбиты
     # hp = H
@@ -532,7 +531,7 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     
     Kep = Keplerian_elements(TRG[0:6,-1], 0, CONST.fM_Earth, 1)
 
-    print_trajectory_orbit(Nstage, TRG, TR, step, Kep)
+    print_trajectory_orbit(Nstage, TRG, TR, step, Kep, path_prefix_txt)
 
     # Kep = [hp/CONST.UnitR, ha/CONST.UnitR, i, w, om, tet]
     Kep = [(Kep[3]-CONST.R_Earth)/CONST.UnitR, (Kep[4]-CONST.R_Earth)/CONST.UnitR, Kep[5], Kep[7], Kep[6], tet]
@@ -541,7 +540,7 @@ def Trajectory_orbit(u, Nstage, P, c, M, S, lam, fi, A, H, inc, W, OM):
     TET = np.linspace(0, 2*np.pi, 60)
     orb = orbit_full(Kep, TET, 1) 
 
-    draw_trajectory_orbit(TRG, orb, L, h, H, TR, tt)
+    draw_trajectory_orbit(TRG, orb, L, h, H, TR, tt, path_prefix_plt)
 
 
 def boundary_condition_ell(rvm, hp, ha, fi, lam, A):
