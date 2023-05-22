@@ -622,7 +622,7 @@ def Solution_ELL(u, Nstage, P, c, M, S, lam, fi, A, hp, ha):
     # res = cma.fmin(funMin_ell, x, 0.01, options={'maxfevals': 1e3, 'popsize':10}, args=(Nstage, P, c, M, S, lam, fi, A, hp, ha, u,))
     # x = res[0]    
     
-    x = minimize(funMin_ell, x, args=(Nstage, P, c, M, S, lam, fi, A, hp, ha, u), method='Powell', options={'maxiter':5})
+    x = minimize(funMin_ell, x, args=(Nstage, P, c, M, S, lam, fi, A, hp, ha, u), method='Powell', options={'maxiter':10})
     print('Solution_ELL():', x)
  
     for i in range(Nstage):

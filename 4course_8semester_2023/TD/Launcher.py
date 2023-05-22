@@ -88,7 +88,7 @@ def write_solution_data(Sol, u, rvm, tt, TR, step, error, path_prefix):
     file.close()
 
 
-def prepare_paths(H) -> tuple[str, str]:
+def prepare_paths(H, optimize=False) -> tuple[str, str]:
     today_str = datetime.now().strftime('%Y-%m-%d')
     time_str = datetime.now().strftime('%H:%M:%S')
 
@@ -101,8 +101,8 @@ def prepare_paths(H) -> tuple[str, str]:
     if not path.exists(dir_today_plt):
         mkdir(dir_today_plt)
 
-    dir_current_txt = dir_today_txt + f'/{time_str}_{H}km'
-    dir_current_plt = dir_today_plt + f'/{time_str}_{H}km'
+    dir_current_txt = dir_today_txt + f'/{time_str}_{H}km' + ('_opt' if optimize else '')
+    dir_current_plt = dir_today_plt + f'/{time_str}_{H}km' + ('_opt' if optimize else '')
     
     if not path.exists(dir_current_txt):
         mkdir(dir_current_txt)
@@ -116,12 +116,13 @@ def prepare_paths(H) -> tuple[str, str]:
 
 if __name__ == "__main__":
     
-    TYPE = 2 # 0, 1 or 2, 3
+    TYPE = 3 # 0, 1 or 2, 3
     rocket = Rocket()
     control = Control()
     od = OrbitData()
 
-    path_prefix_txt, path_prefix_plt = prepare_paths(od.H if TYPE in [0, 1] else od.hp)
+    path_prefix_txt, path_prefix_plt = prepare_paths(od.H if TYPE in [0, 1] else od.hp,
+                                                     True if TYPE in [1, 3] else False)
     
     write_input_data(rocket, control, od, path_prefix_txt)
 
@@ -139,7 +140,7 @@ if __name__ == "__main__":
     #для эллиптических орбит
     elif TYPE == 2:
         Trajectory_orbit(control.u_ell, rocket.Nstage, rocket.P, rocket.c, rocket.M, 
-                        rocket.S, rocket.lam, rocket.fi, rocket.A, od.hp, od.inc, od.W, od.OM, path_prefix_txt, path_prefix_plt)
+                        rocket.S, rocket.lam, rocket.fi, rocket.A, od.ha, od.inc, od.W, od.OM, path_prefix_txt, path_prefix_plt)
     if TYPE == 3:
         Sol2, u2, rvm2, tt2, TR2, step2, error2 = Solution_ELL(control.u_ell, rocket.Nstage,
                                                             rocket.P, rocket.c, rocket.M, 
@@ -147,7 +148,7 @@ if __name__ == "__main__":
                                                             rocket.fi, rocket.A, od.hp, od.ha)
         write_solution_data(Sol2, u2, rvm2, tt2, TR2, step2, error2, path_prefix_txt)
         Trajectory_orbit(u2, rocket.Nstage, rocket.P, rocket.c, rocket.M, 
-                        rocket.S, rocket.lam, rocket.fi, rocket.A, od.hp, od.inc, od.W, od.OM, path_prefix_txt, path_prefix_plt) 
+                        rocket.S, rocket.lam, rocket.fi, rocket.A, od.ha, od.inc, od.W, od.OM, path_prefix_txt, path_prefix_plt) 
 
 
 
